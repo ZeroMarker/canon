@@ -6,7 +6,8 @@ Run:
 */
 
 (
-var projectDir = PathName(thisProcess.nowExecutingPath).pathOnly;
+var envProjectDir = "CANON_PROJECT_DIR".getenv;
+var projectDir = envProjectDir ? PathName(thisProcess.nowExecutingPath).pathOnly;
 var envPath = "CANON_RECORD_PATH".getenv;
 var envDuration = "CANON_RECORD_DURATION".getenv;
 

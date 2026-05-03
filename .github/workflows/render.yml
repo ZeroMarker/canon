@@ -13,6 +13,7 @@ jobs:
     timeout-minutes: 15
     env:
       QT_QPA_PLATFORM: offscreen
+      CANON_PROJECT_DIR: ${{ github.workspace }}
 
     steps:
       - name: Check out repository
@@ -35,7 +36,7 @@ jobs:
 
       - name: Render WAV
         run: |
-          timeout 5m sclang export_wav.scd
+          timeout 8m sclang "$GITHUB_WORKSPACE/export_wav.scd"
           test -s canon_in_d.wav
 
       - name: Convert WAV to MP3
