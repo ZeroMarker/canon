@@ -14,6 +14,7 @@ jobs:
     env:
       QT_QPA_PLATFORM: offscreen
       CANON_PROJECT_DIR: ${{ github.workspace }}
+      JACK_NO_AUDIO_RESERVATION: "1"
 
     steps:
       - name: Check out repository
@@ -26,17 +27,21 @@ jobs:
 
       - name: Configure headless audio
         run: |
-          sudo modprobe snd-dummy || true
           mkdir -p "$HOME/.config/SuperCollider"
           cat > "$HOME/.config/SuperCollider/startup.scd" <<'EOF'
-          Server.default.options.device = nil;
+          Server.default.options.device = "SuperCollider";
           Server.default.options.numInputBusChannels = 0;
           Server.default.options.numOutputBusChannels = 2;
           EOF
+          jackd -d dummy -r 48000 -p 1024 > jackd.log 2>&1 &
+          echo "$!" > jackd.pid
+          sleep 3
+          cat jackd.log
+          jack_lsp
 
       - name: Render WAV
         run: |
-          timeout 8m sclang "$GITHUB_WORKSPACE/export_wav.scd"
+          timeout 10m sclang "$GITHUB_WORKSPACE/export_wav.scd"
           test -s canon_in_d.wav
 
       - name: Convert WAV to MP3
